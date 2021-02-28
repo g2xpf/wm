@@ -102,8 +102,6 @@ impl Component for Cursor {
         let resolution: [f32; 2] = proxy.frame_buffer_size().into();
         let frame = proxy.frame();
         let position: [f32; 2] = (self.local_position + scale_factor * self.layout.position).into();
-        println!("position: {:?}", self.local_position / scale_factor);
-        println!("position: {:?}", position[1] / scale_factor);
         let color: [f32; 4] = self.color.into();
         frame
             .draw(

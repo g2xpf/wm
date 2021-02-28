@@ -35,8 +35,8 @@ impl Component for Desktop {
         self.window_manager.draw(proxy);
     }
 
-    fn update(&mut self) {
-        self.window_manager.update();
+    fn update(&mut self, global: &Global) {
+        self.window_manager.update(global);
     }
 
     fn handle_event(&mut self, event: &Event<'_, CustomEvent>, global: &Global) {

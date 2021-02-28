@@ -47,8 +47,8 @@ impl Component for Sample {
         self.input.handle_event(event, global);
     }
 
-    fn update(&mut self) {
-        self.input.update();
+    fn update(&mut self, global: &Global) {
+        self.input.update(global);
     }
 }
 

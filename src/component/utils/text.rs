@@ -119,7 +119,7 @@ impl Component for Text {
         }
     }
 
-    fn update(&mut self) {
+    fn update(&mut self, _global: &Global) {
         self.update_vbo();
     }
 

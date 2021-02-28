@@ -1,4 +1,4 @@
-use super::{Cursor, Plane, Text};
+use super::{Plane, Text};
 use crate::custom_event::EventProxy;
 use crate::Global;
 use crate::RenderContextProxy;
@@ -8,6 +8,7 @@ use glium::glutin;
 use glutin::event::ElementState;
 use glutin::event::Event;
 use glutin::event::WindowEvent;
+use glutin::window::CursorIcon;
 
 use nalgebra::Vector4;
 
@@ -48,9 +49,9 @@ impl Component for Input {
         self.text.draw(proxy);
     }
 
-    fn update(&mut self) {
-        self.background.update();
-        self.text.update();
+    fn update(&mut self, global: &Global) {
+        self.background.update(global);
+        self.text.update(global);
     }
 
     fn handle_event(&mut self, event: EventProxy, global: &Global) {
@@ -60,16 +61,16 @@ impl Component for Input {
                     state: ElementState::Pressed,
                     ..
                 } => {
-                    if self.is_cursor_hovering(global) {
-                        println!("focus on!");
+                    let is_cursor_hovering = self.is_cursor_hovering(global);
+                    if is_cursor_hovering && !self.focus {
                         self.focus = true;
                         self.text.set_cursor_visibility(true);
-                    } else {
+                        global.request_redraw();
+                    } else if !is_cursor_hovering && self.focus {
                         self.focus = false;
                         self.text.set_cursor_visibility(false);
-                        println!("focus off...");
+                        global.request_redraw();
                     }
-                    global.request_redraw();
                 }
                 WindowEvent::ReceivedCharacter(c) if self.focus => match *c {
                     '\u{08}' => {

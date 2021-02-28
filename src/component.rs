@@ -22,8 +22,6 @@ pub struct Layout {
 
 impl Layout {
     pub fn contains(&self, logical_position: &LogicalPosition<f64>) -> bool {
-        println!("logical_position: {:?}", logical_position);
-        println!("layout: {:?}", *self);
         let (x, y) = (logical_position.x as f32, logical_position.y as f32);
         self.position.x <= x
             && x <= self.position.x + self.size.x
@@ -36,7 +34,7 @@ impl Layout {
 pub trait Component {
     fn draw(&self, _proxy: &mut RenderContextProxy) {}
     fn handle_event(&mut self, event: &Event<'_, CustomEvent>, global: &Global) {}
-    fn update(&mut self) {}
+    fn update(&mut self, global: &Global) {}
 
     fn set_layout(&mut self, _layout: Layout) {}
 }

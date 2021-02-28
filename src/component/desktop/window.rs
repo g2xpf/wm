@@ -8,11 +8,18 @@ use crate::Component;
 use crate::Global;
 use crate::RenderContextProxy;
 
+use glium::glutin::{
+    dpi::LogicalPosition,
+    event::{ElementState, Event, WindowEvent},
+};
+
 pub struct Window {
     id: WindowId,
     app: Box<dyn Application>,
     title_text: Text,
     background: Plane,
+    layout: Layout,
+    dragging_state: Option<LogicalPosition<f64>>,
 }
 
 impl Window {
@@ -24,7 +31,7 @@ impl Window {
 
         let mut title_text = Text::new(&global);
         title_text.set_font_size(Self::TITLE_HEIGHT);
-        title_text.color = Vector4::new(0.9, 0.9, 0.9, 1.0);
+        title_text.color = Vector4::new(0.4, 0.7, 0.9, 1.0);
         title_text.content = app_info.title.clone();
 
         let app = Box::new(app);
@@ -38,6 +45,8 @@ impl Window {
             background,
             app,
             title_text,
+            layout: Layout::default(),
+            dragging_state: None,
         };
         window.set_layout(Layout {
             position: Vector2::new(50.0, 50.0),
@@ -54,19 +63,52 @@ impl Component for Window {
         self.app.draw(proxy);
     }
 
-    fn update(&mut self) {
-        self.background.update();
-        self.title_text.update();
-        self.app.update();
+    fn update(&mut self, global: &Global) {
+        if let Some(position) = &mut self.dragging_state {
+            let new_position = global.cursor_position();
+            let (dx, dy) = (new_position.x - position.x, new_position.y - position.y);
+            *position = new_position;
+            let mut layout = self.layout;
+            layout.position.x += dx as f32;
+            layout.position.y += dy as f32;
+            self.set_layout(layout);
+            global.request_redraw();
+        }
+        self.background.update(global);
+        self.title_text.update(global);
+        self.app.update(global);
     }
 
     fn handle_event(&mut self, event: EventProxy, global: &Global) {
+        match event {
+            Event::WindowEvent { event, .. } => match event {
+                WindowEvent::MouseInput {
+                    state: ElementState::Pressed,
+                    ..
+                } => {
+                    let cursor_position = global.cursor_position();
+                    if self.title_text.layout.contains(&cursor_position) {
+                        self.dragging_state = Some(cursor_position);
+                    }
+                }
+                WindowEvent::MouseInput {
+                    state: ElementState::Released,
+                    ..
+                } => {
+                    self.dragging_state = None;
+                }
+                _ => {}
+            },
+            _ => {}
+        }
+
         self.background.handle_event(event, global);
         self.title_text.handle_event(event, global);
         self.app.handle_event(event, global);
     }
 
     fn set_layout(&mut self, layout: Layout) {
+        self.layout = layout;
         let title_text_layout = {
             let position = layout.position + Vector2::new(Self::FRAME_WIDTH, Self::FRAME_WIDTH);
             let size = Vector2::new(layout.size.x - Self::FRAME_WIDTH * 2.0, Self::TITLE_HEIGHT);

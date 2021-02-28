@@ -53,10 +53,10 @@ impl Plane {
     pub fn update_vbo(&mut self) {
         if self.should_redraw {
             self.should_redraw = false;
-            let left = self.layout.position.x;
-            let right = left + self.layout.size.x;
-            let bottom = self.layout.position.y;
-            let top = bottom + self.layout.size.y;
+            let left = 0.0;
+            let right = self.layout.size.x;
+            let bottom = 0.0;
+            let top = self.layout.size.y;
 
             let vertex_buffer = VertexBuffer::new(
                 &self.display,
@@ -92,8 +92,9 @@ impl Component for Plane {
         let plane_size: [f32; 2] = self.layout.size.into();
         let resolution: [f32; 2] = proxy.frame_buffer_size().into();
         let background_color: [f32; 4] = self.color.into();
-        let frame = proxy.frame();
         let scale_factor = self.display.gl_window().window().scale_factor() as f32;
+        let frame = proxy.frame();
+        let position: [f32; 2] = self.layout.position.into();
 
         frame
             .draw(
@@ -106,14 +107,15 @@ impl Component for Plane {
                     u_round_radius: self.round_radius,
                     u_plane_size: plane_size,
                     u_resolution: resolution,
-                    u_scale_factor: scale_factor
+                    u_scale_factor: scale_factor,
+                    u_position: position
                 },
                 &DrawParameters::default(),
             )
             .expect("failed to draw");
     }
 
-    fn update(&mut self) {
+    fn update(&mut self, _global: &Global) {
         self.update_vbo();
     }
 

@@ -38,9 +38,9 @@ impl Component for WindowManager {
         }
     }
 
-    fn update(&mut self) {
+    fn update(&mut self, global: &Global) {
         for window in self.windows.values_mut() {
-            window.update();
+            window.update(global);
         }
     }
 

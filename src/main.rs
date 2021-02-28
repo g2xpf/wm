@@ -19,7 +19,7 @@ fn main() {
     let wb = glutin::window::WindowBuilder::new()
         .with_title("wm")
         .with_inner_size(window_size);
-    let cb = glutin::ContextBuilder::new().with_vsync(true);
+    let cb = glutin::ContextBuilder::new(); //.with_vsync(true);
     let display = Display::new(wb, cb, &event_loop).unwrap();
     let render_context = RenderContext::new(display);
 
@@ -30,7 +30,7 @@ fn main() {
     let mut desktop = Desktop::new(&global);
 
     event_loop.run(move |event, _, control_flow| {
-        *control_flow = ControlFlow::Poll;
+        *control_flow = ControlFlow::Wait;
 
         global.handle_event(&event);
         desktop.handle_event(&event, &global);
@@ -49,7 +49,7 @@ fn main() {
             )) => {}
 
             Event::MainEventsCleared => {
-                desktop.update();
+                desktop.update(&global);
             }
 
             // rendering
