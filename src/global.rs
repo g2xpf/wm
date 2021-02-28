@@ -48,6 +48,10 @@ impl Global {
         self.cursor_position.to_logical(self.scale_factor)
     }
 
+    pub fn request_redraw(&self) {
+        self.display().gl_window().window().request_redraw();
+    }
+
     pub fn display(&self) -> &Display {
         self.render_context.display()
     }

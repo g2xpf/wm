@@ -24,7 +24,7 @@ impl Sample {
             layout: Layout::default(),
         };
         let mut input = Input::new(global);
-        input.text.font_size = 16.0;
+        input.text.set_font_size(16.0);
         input.text.color = Vector4::new(0.1, 0.1, 0.1, 1.0);
         input.background.color = Vector4::new(1.0, 1.0, 1.0, 1.0);
         input.background.round_radius = 2.0;

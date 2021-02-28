@@ -1,4 +1,4 @@
-use super::{Plane, Text};
+use super::{Cursor, Plane, Text};
 use crate::custom_event::EventProxy;
 use crate::Global;
 use crate::RenderContextProxy;
@@ -22,13 +22,14 @@ pub struct Input {
 
 impl Input {
     pub fn new(global: &Global) -> Self {
-        let mut text = Text::new(global);
+        let mut text = Text::new_cursored(global);
         text.content = String::new();
 
         let mut background = Plane::new(global);
         background.color = Vector4::new(0.4, 0.9, 0.8, 1.0);
         background.request_redraw();
         let focus = false;
+
         Input {
             text,
             background,
@@ -62,10 +63,13 @@ impl Component for Input {
                     if self.is_cursor_hovering(global) {
                         println!("focus on!");
                         self.focus = true;
+                        self.text.set_cursor_visibility(true);
                     } else {
                         self.focus = false;
+                        self.text.set_cursor_visibility(false);
                         println!("focus off...");
                     }
+                    global.request_redraw();
                 }
                 WindowEvent::ReceivedCharacter(c) if self.focus => match *c {
                     '\u{08}' => {

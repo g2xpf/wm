@@ -17,6 +17,11 @@ use std::io::{self, Read};
 use std::path::Path;
 use std::rc::Rc;
 
+use crate::component::utils::Cursor;
+use crate::Global;
+
+use nalgebra::Vector2;
+
 #[allow(non_snake_case)]
 #[derive(Clone, Copy, Debug)]
 pub struct FontRenderInfo {
@@ -27,7 +32,8 @@ implement_vertex!(FontRenderInfo, a_uv, a_position);
 
 pub struct RawText<'a> {
     pub content: String,
-    pub font_size: f32,
+    font_size: f32,
+    pub(super) cursor: Option<Cursor>,
     display: Display,
     cache: Cache<'a>,
     glyphs: Vec<PositionedGlyph<'a>>,
@@ -85,6 +91,7 @@ impl<'a> RawText<'a> {
 
         RawText {
             display,
+            cursor: None,
             cache,
             cache_tex,
             font,
@@ -95,10 +102,31 @@ impl<'a> RawText<'a> {
         }
     }
 
+    pub fn with_cursor(mut self, global: &Global) -> Self {
+        self.cursor = Some(Cursor::new(global));
+        self
+    }
+
+    pub fn set_cursor_visibility(&mut self, visibility: bool) -> bool {
+        if let Some(cursor) = self.cursor.as_mut() {
+            cursor.visibility = visibility;
+            true
+        } else {
+            false
+        }
+    }
+
     pub(super) fn set_wrap_bound(&mut self, bound: u32) {
         let bound = bound as f64;
         let scale_factor = self.display.gl_window().window().scale_factor();
         self.wrap_bound = (bound * scale_factor) as u32;
+    }
+
+    pub fn set_font_size(&mut self, font_size: f32) {
+        self.font_size = font_size;
+        if let Some(cursor) = self.cursor.as_mut() {
+            cursor.set_font_size(font_size);
+        }
     }
 
     pub(super) fn update_cache(&mut self) {
@@ -162,6 +190,9 @@ impl<'a> RawText<'a> {
                 )
             })
             .unwrap();
+        if let Some(cursor) = self.cursor.as_mut() {
+            cursor.local_position = Vector2::new(caret.x, caret.y - v_metrics.ascent);
+        }
     }
 
     pub(super) fn create_texture(

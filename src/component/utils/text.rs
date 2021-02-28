@@ -33,9 +33,8 @@ impl Text {
     const VSRC: &'static str = include_str!("text/text.vert");
     const FSRC: &'static str = include_str!("text/text.frag");
 
-    pub fn new(global: &Global) -> Self {
+    fn from_raw_text(raw_text: RawText<'static>, global: &Global) -> Self {
         let display = global.display().clone();
-        let raw_text = RawText::from_internal(&display, &global.font);
         let program = Program::from_source(&display, Self::VSRC, Self::FSRC, None)
             .unwrap_or_else(|err| panic!(format!("{:#?}", err)));
         let vbo = None;
@@ -52,8 +51,22 @@ impl Text {
         }
     }
 
+    pub fn new(global: &Global) -> Self {
+        let raw_text = RawText::from_internal(global.display(), &global.font);
+        Self::from_raw_text(raw_text, global)
+    }
+
+    pub fn new_cursored(global: &Global) -> Self {
+        let raw_text = RawText::from_internal(global.display(), &global.font).with_cursor(global);
+        Self::from_raw_text(raw_text, global)
+    }
+
+    pub fn set_cursor_visibility(&mut self, visibility: bool) -> bool {
+        self.inner.set_cursor_visibility(visibility)
+    }
+
     pub fn set_font_size(&mut self, font_size: f32) {
-        self.inner.font_size = font_size;
+        self.inner.set_font_size(font_size);
     }
 
     pub fn update_vbo(&mut self) {
@@ -79,9 +92,7 @@ impl Component for Text {
         let vbo = self.vbo.as_ref().expect("vbo not initialized");
         let resolution: [f32; 2] = proxy.frame_buffer_size().into();
         let scale_factor = proxy.scale_factor() as f32;
-        println!("resolution: {:?}", resolution);
         let position = self.layout.position;
-        println!("{:?}", position);
         let color: [f32; 4] = self.color.into();
 
         proxy
@@ -103,6 +114,9 @@ impl Component for Text {
                 },
             )
             .expect("failed to draw text");
+        if let Some(cursor) = self.inner.cursor.as_ref() {
+            cursor.draw(proxy);
+        }
     }
 
     fn update(&mut self) {
@@ -112,6 +126,9 @@ impl Component for Text {
     fn set_layout(&mut self, layout: Layout) {
         self.inner.set_wrap_bound(layout.size.x as u32);
         self.layout = layout;
+        if let Some(cursor) = self.inner.cursor.as_mut() {
+            cursor.set_layout(layout);
+        }
     }
 }
 
