@@ -50,7 +50,7 @@ impl Window {
         };
         window.set_layout(Layout {
             position: Vector2::new(50.0, 50.0),
-            size: Vector2::new(200.0, 480.0),
+            size: Vector2::new(180.0, 240.0),
         });
         window
     }
