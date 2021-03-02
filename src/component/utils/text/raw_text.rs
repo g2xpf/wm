@@ -208,16 +208,16 @@ impl<'a> RawText<'a> {
         for glyph in &self.glyphs {
             match self.cache.rect_for(0, glyph) {
                 Err(_) | Ok(None) => continue,
-                Ok(Some(info)) => {
-                    let uv_left_bottom = [info.0.min.x, info.0.min.y];
-                    let uv_right_bottom = [info.0.max.x, info.0.min.y];
-                    let uv_left_top = [info.0.min.x, info.0.max.y];
-                    let uv_right_top = [info.0.max.x, info.0.max.y];
+                Ok(Some((uv, position))) => {
+                    let uv_left_bottom = [uv.min.x, uv.min.y];
+                    let uv_right_bottom = [uv.max.x, uv.min.y];
+                    let uv_left_top = [uv.min.x, uv.max.y];
+                    let uv_right_top = [uv.max.x, uv.max.y];
 
-                    let position_left_bottom = [info.1.min.x, info.1.min.y];
-                    let position_right_bottom = [info.1.max.x, info.1.min.y];
-                    let position_left_top = [info.1.min.x, info.1.max.y];
-                    let position_right_top = [info.1.max.x, info.1.max.y];
+                    let position_left_bottom = [position.min.x, position.min.y];
+                    let position_right_bottom = [position.max.x, position.min.y];
+                    let position_left_top = [position.min.x, position.max.y];
+                    let position_right_top = [position.max.x, position.max.y];
 
                     render_info.push(FontRenderInfo {
                         a_position: position_left_bottom,

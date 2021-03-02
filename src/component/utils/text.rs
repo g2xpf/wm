@@ -2,6 +2,7 @@ use crate::Global;
 use crate::RenderContextProxy;
 use crate::{component::Layout, Component};
 
+use glium::Blend;
 use glium::Surface;
 use glium::VertexBuffer;
 use glium::{index::NoIndices, program::Program};
@@ -109,7 +110,7 @@ impl Component for Text {
                     u_position: [position.x, position.y],
                 },
                 &DrawParameters {
-                    multisampling: true,
+                    blend: Blend::alpha_blending(),
                     ..DrawParameters::default()
                 },
             )

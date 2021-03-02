@@ -5,7 +5,7 @@ uniform vec2 u_position;
 uniform float u_scale_factor;
 
 in vec2 a_uv;
-in ivec2 a_position;
+in vec2 a_position;
 
 out vec2 v_uv;
 
