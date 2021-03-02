@@ -73,7 +73,7 @@ impl Component for Input {
                     }
                 }
                 WindowEvent::ReceivedCharacter(c) if self.focus => match *c {
-                    '\u{08}' => {
+                    '\u{8}' | '\u{7f}' => {
                         self.text.content.pop();
                     }
                     c => {
