@@ -249,4 +249,16 @@ impl<'a> RawText<'a> {
 
         render_info
     }
+
+    fn print_glyph(rect: &rusttype::Rect<u32>, data: &[u8]) {
+        for y in 0..rect.height() {
+            for x in 0..rect.width() {
+                let y = y as usize;
+                let x = x as usize;
+                print!("{:<3}", data[y * rect.width() as usize + x]);
+            }
+            println!("");
+        }
+        println!("");
+    }
 }
