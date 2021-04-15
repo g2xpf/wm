@@ -7,11 +7,11 @@ use glutin::event_loop::ControlFlow;
 
 use rusttype::Font;
 
-use wm::custom_event::{self, CustomEvent};
-use wm::Component;
-use wm::Desktop;
-use wm::Global;
-use wm::RenderContext;
+use wm_lib::custom_event::{self, CustomEvent};
+use wm_lib::Component;
+use wm_lib::Desktop;
+use wm_lib::Global;
+use wm_lib::RenderContext;
 
 fn main() {
     let event_loop = glutin::event_loop::EventLoop::<CustomEvent>::with_user_event();
