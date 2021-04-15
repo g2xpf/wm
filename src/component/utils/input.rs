@@ -8,7 +8,6 @@ use glium::glutin;
 use glutin::event::ElementState;
 use glutin::event::Event;
 use glutin::event::WindowEvent;
-use glutin::window::CursorIcon;
 
 use nalgebra::Vector4;
 

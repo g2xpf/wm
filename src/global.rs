@@ -2,9 +2,11 @@ use std::rc::Rc;
 
 use crate::{custom_event::CustomEvent, RenderContext};
 
+use glium::glutin::event_loop::EventLoopClosed;
 use glium::glutin::{
     dpi::{LogicalPosition, PhysicalPosition},
     event::Event,
+    event_loop::EventLoopProxy,
 };
 use glium::Display;
 
@@ -13,10 +15,15 @@ pub struct Global {
     pub render_context: RenderContext<'static>,
     cursor_position: PhysicalPosition<f64>,
     pub scale_factor: f64,
+    pub event_loop_proxy: EventLoopProxy<CustomEvent>,
 }
 
 impl Global {
-    pub fn new(font: rusttype::Font<'static>, render_context: RenderContext<'static>) -> Self {
+    pub fn new(
+        font: rusttype::Font<'static>,
+        render_context: RenderContext<'static>,
+        event_loop_proxy: EventLoopProxy<CustomEvent>,
+    ) -> Self {
         let font = Rc::new(font);
         let scale_factor = render_context.scale_factor();
         let cursor_position = PhysicalPosition::new(0.0, 0.0);
@@ -26,7 +33,12 @@ impl Global {
             render_context,
             scale_factor,
             cursor_position,
+            event_loop_proxy,
         }
+    }
+
+    pub fn send_event(&self, event: CustomEvent) -> Result<(), EventLoopClosed<CustomEvent>> {
+        self.event_loop_proxy.send_event(event)
     }
 
     pub fn handle_event(&mut self, event: &Event<'_, CustomEvent>) {

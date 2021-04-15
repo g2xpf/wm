@@ -15,6 +15,7 @@ use wm::RenderContext;
 
 fn main() {
     let event_loop = glutin::event_loop::EventLoop::<CustomEvent>::with_user_event();
+    let event_loop_proxy = event_loop.create_proxy();
     let window_size: LogicalSize<f32> = (960.0, 720.0).into();
     let wb = glutin::window::WindowBuilder::new()
         .with_title("wm")
@@ -25,7 +26,7 @@ fn main() {
 
     let font = Font::try_from_bytes(include_bytes!("../resource/GenRyuMinJP-Regular.ttf"))
         .expect("failed to load font");
-    let mut global = Global::new(font, render_context);
+    let mut global = Global::new(font, render_context, event_loop_proxy);
 
     let mut desktop = Desktop::new(&global);
 

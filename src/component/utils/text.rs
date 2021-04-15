@@ -44,7 +44,7 @@ impl Text {
         Self {
             display,
             inner: raw_text,
-            inner_edited: false,
+            inner_edited: true,
             program,
             vbo,
             color,
