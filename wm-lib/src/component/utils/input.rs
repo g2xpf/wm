@@ -1,8 +1,9 @@
 use super::{Plane, Text};
-use crate::custom_event::EventProxy;
+use crate::rw_cell::Rw;
 use crate::Global;
 use crate::RenderContextProxy;
 use crate::{component::Layout, Component};
+use crate::{custom_event::EventProxy, rw_cell::ToR};
 
 use glium::glutin;
 use glutin::event::ElementState;
@@ -15,15 +16,18 @@ use nalgebra::Vector4;
 struct Vertex {}
 
 pub struct Input {
-    pub text: Text,
+    pub text_component: Text,
+    pub inner_text: Rw<String>,
+
     pub background: Plane,
     focus: bool,
 }
 
 impl Input {
     pub fn new(global: &Global) -> Self {
+        let inner_text = Rw::new(String::new());
         let mut text = Text::new_cursored(global);
-        text.content = String::new();
+        text.inner_text = inner_text.to_r();
 
         let mut background = Plane::new(global);
         background.color = Vector4::new(0.4, 0.9, 0.8, 1.0);
@@ -31,7 +35,8 @@ impl Input {
         let focus = false;
 
         Input {
-            text,
+            inner_text,
+            text_component: text,
             background,
             focus,
         }
@@ -45,12 +50,12 @@ impl Input {
 impl Component for Input {
     fn draw(&self, proxy: &mut RenderContextProxy) {
         self.background.draw(proxy);
-        self.text.draw(proxy);
+        self.text_component.draw(proxy);
     }
 
     fn update(&mut self, global: &Global) {
         self.background.update(global);
-        self.text.update(global);
+        self.text_component.update(global);
     }
 
     fn handle_event(&mut self, event: EventProxy, global: &Global) {
@@ -63,20 +68,20 @@ impl Component for Input {
                     let is_cursor_hovering = self.is_cursor_hovering(global);
                     if is_cursor_hovering && !self.focus {
                         self.focus = true;
-                        self.text.set_cursor_visibility(true);
+                        self.text_component.set_cursor_visibility(true);
                         global.request_redraw();
                     } else if !is_cursor_hovering && self.focus {
                         self.focus = false;
-                        self.text.set_cursor_visibility(false);
+                        self.text_component.set_cursor_visibility(false);
                         global.request_redraw();
                     }
                 }
                 WindowEvent::ReceivedCharacter(c) if self.focus => match *c {
                     '\u{8}' | '\u{7f}' => {
-                        self.text.content.pop();
+                        self.inner_text.borrow_mut().pop();
                     }
                     c => {
-                        self.text.content.push(c);
+                        self.inner_text.borrow_mut().push(c);
                     }
                 },
                 _ => {}
@@ -87,6 +92,6 @@ impl Component for Input {
 
     fn set_layout(&mut self, layout: Layout) {
         self.background.set_layout(layout);
-        self.text.set_layout(layout);
+        self.text_component.set_layout(layout);
     }
 }

@@ -21,7 +21,6 @@ pub struct Text {
     display: Display,
 
     inner: RawText<'static>,
-    inner_edited: bool,
 
     program: Program,
     vbo: Option<VertexBuffer<FontRenderInfo>>,
@@ -36,15 +35,13 @@ impl Text {
 
     fn from_raw_text(raw_text: RawText<'static>, global: &Global) -> Self {
         let display = global.display().clone();
-        let program = Program::from_source(&display, Self::VSRC, Self::FSRC, None)
-            .unwrap_or_else(|err| panic!(format!("{:#?}", err)));
+        let program = Program::from_source(&display, Self::VSRC, Self::FSRC, None).unwrap();
         let vbo = None;
         let color = Vector4::new(0.0, 0.0, 0.0, 1.0);
 
         Self {
             display,
             inner: raw_text,
-            inner_edited: true,
             program,
             vbo,
             color,
@@ -71,8 +68,7 @@ impl Text {
     }
 
     pub fn update_vbo(&mut self) {
-        if self.inner_edited {
-            self.inner_edited = false;
+        if self.inner.inner_text.is_modified() {
             self.inner.update_cache();
             let render_info = self.inner.to_font_render_info();
             self.vbo = Some(
@@ -84,7 +80,7 @@ impl Text {
     }
 
     pub fn request_redraw(&mut self) {
-        self.inner_edited = true;
+        self.inner.inner_text.dry_modify();
     }
 }
 
@@ -143,7 +139,6 @@ impl Deref for Text {
 
 impl DerefMut for Text {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        self.inner_edited = true;
         &mut self.inner
     }
 }

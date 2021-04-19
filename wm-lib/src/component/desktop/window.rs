@@ -4,6 +4,7 @@ use nalgebra::Vector4;
 use super::{application::Application, window_manager::WindowId};
 use crate::component::{Layout, Plane, Text};
 use crate::custom_event::EventProxy;
+use crate::rw_cell::ToR;
 use crate::Component;
 use crate::Global;
 use crate::RenderContextProxy;
@@ -32,7 +33,7 @@ impl Window {
         let mut title_text = Text::new(&global);
         title_text.set_font_size(Self::TITLE_HEIGHT);
         title_text.color = Vector4::new(0.4, 0.7, 0.9, 1.0);
-        title_text.content = app_info.title.clone();
+        title_text.inner_text = app_info.title.to_r();
 
         let app = Box::new(app);
 

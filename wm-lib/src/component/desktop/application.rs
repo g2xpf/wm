@@ -1,11 +1,12 @@
 use crate::component::Layout;
+use crate::rw_cell::Rw;
 use crate::Component;
 
 mod sample;
 pub use sample::Sample;
 
 pub struct AppInfo {
-    pub title: String,
+    pub title: Rw<String>,
     pub layout: Layout,
 }
 

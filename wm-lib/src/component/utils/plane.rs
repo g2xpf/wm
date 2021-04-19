@@ -35,8 +35,7 @@ impl Plane {
 
     pub fn new(global: &Global) -> Self {
         let display = global.display().clone();
-        let program = Program::from_source(&display, Self::VSRC, Self::FSRC, None)
-            .unwrap_or_else(|err| panic!(format!("{:#?}", err)));
+        let program = Program::from_source(&display, Self::VSRC, Self::FSRC, None).unwrap();
         let vbo = None;
 
         Plane {

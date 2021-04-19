@@ -3,6 +3,7 @@ use nalgebra::Vector4;
 use crate::component::utils::{Button, Input};
 use crate::component::Layout;
 use crate::custom_event::CustomEvent;
+use crate::rw_cell::{Rw, R};
 use crate::Global;
 use crate::RenderContextProxy;
 
@@ -21,22 +22,24 @@ pub struct Sample {
 
 impl Sample {
     pub fn new(global: &Global) -> Self {
-        let title = String::from("App");
+        let title = Rw::new(String::from("App"));
         let app_info = AppInfo {
             title,
             layout: Layout::default(),
         };
         let mut input = Input::new(global);
-        input.text.set_font_size(16.0);
-        input.text.color = Vector4::new(0.1, 0.1, 0.1, 1.0);
+        input.text_component.set_font_size(16.0);
+        input.text_component.color = Vector4::new(0.1, 0.1, 0.1, 1.0);
         input.background.color = Vector4::new(1.0, 1.0, 1.0, 1.0);
         input.background.round_radius = 2.0;
 
         let mut button = Button::new(global);
         button.set_font_size(16.0);
         button.text.color = Vector4::new(0.0, 0.4, 0.4, 1.0);
-        button.text.content = "push!!!!!!!!!!!!!!!!".to_owned();
+        button.text.inner_text = R::new("clear!".to_owned());
         button.round_radius = 2.0;
+        let text = input.inner_text.clone();
+        button.on_click = Some(Box::new(move || text.borrow_mut().clear()));
 
         Sample {
             app_info,

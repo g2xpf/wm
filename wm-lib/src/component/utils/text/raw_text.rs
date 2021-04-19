@@ -18,6 +18,7 @@ use std::path::Path;
 use std::rc::Rc;
 
 use crate::component::utils::Cursor;
+use crate::rw_cell::R;
 use crate::Global;
 
 use nalgebra::Vector2;
@@ -31,7 +32,7 @@ pub struct FontRenderInfo {
 implement_vertex!(FontRenderInfo, a_uv, a_position);
 
 pub struct RawText<'a> {
-    pub content: String,
+    pub inner_text: R<String>,
     font_size: f32,
     pub(super) cursor: Option<Cursor>,
     display: Display,
@@ -87,7 +88,7 @@ impl<'a> RawText<'a> {
         .unwrap();
         let font = Rc::clone(font);
         let glyphs = Vec::new();
-        let text = String::new();
+        let inner_text = R::new(String::new());
 
         RawText {
             display,
@@ -96,7 +97,7 @@ impl<'a> RawText<'a> {
             cache_tex,
             font,
             glyphs,
-            content: text,
+            inner_text,
             wrap_bound,
             font_size: 24.0,
         }
@@ -138,7 +139,7 @@ impl<'a> RawText<'a> {
         let mut caret = point(0.0, v_metrics.ascent);
         let mut last_glyph_id = None;
 
-        for c in self.content.nfc() {
+        for c in self.inner_text.borrow().nfc() {
             if c.is_control() {
                 match c {
                     '\r' => {

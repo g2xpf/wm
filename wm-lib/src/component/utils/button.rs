@@ -27,7 +27,7 @@ pub struct Button {
     pub text: Text,
     pub layout: Layout,
     pub visibility: bool,
-    pub event_on_click: Option<CustomEvent>,
+    pub on_click: Option<Box<dyn Fn() + 'static>>,
     pub round_radius: f32,
 
     pressed: bool,
@@ -53,7 +53,7 @@ impl Button {
             text,
             layout: Layout::default(),
             visibility: true,
-            event_on_click: None,
+            on_click: None,
             round_radius,
 
             pressed: false,
@@ -139,8 +139,8 @@ impl Component for Button {
             Event::WindowEvent { event, .. } => match event {
                 WindowEvent::MouseInput { state, .. } => match state {
                     ElementState::Pressed if self.is_cursor_hovering(global) => {
-                        if let Some(e) = &self.event_on_click {
-                            let _ = global.send_event(e.clone());
+                        if let Some(callback) = &self.on_click {
+                            callback();
                         }
 
                         self.pressed = true;

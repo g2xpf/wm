@@ -2,8 +2,8 @@ use crate::component::Layout;
 use crate::RenderContextProxy;
 
 use glium::{
-    draw_parameters::Blend, draw_parameters::DrawParameters, implement_vertex, index::IndexType,
-    index::NoIndices, index::PrimitiveType, uniform, Display, Program, Surface, VertexBuffer,
+    draw_parameters::Blend, draw_parameters::DrawParameters, implement_vertex, index::NoIndices,
+    index::PrimitiveType, uniform, Display, Program, Surface, VertexBuffer,
 };
 use nalgebra::{Vector2, Vector4};
 
@@ -43,8 +43,7 @@ impl Cursor {
     pub fn new(global: &Global) -> Self {
         let display = global.render_context.display().clone();
         let shape = CursorShape::Line;
-        let program = Program::from_source(global.display(), Self::VSRC, Self::FSRC, None)
-            .unwrap_or_else(|err| panic!(format!("{:#?}", err)));
+        let program = Program::from_source(global.display(), Self::VSRC, Self::FSRC, None).unwrap();
         let vbo = None;
         let color = Vector4::new(0.0, 0.0, 0.0, 1.0);
 
